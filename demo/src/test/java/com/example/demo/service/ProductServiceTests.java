@@ -16,12 +16,12 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class StudentServiceTests {
+public class ProductServiceTests {
     @Mock
     private StudentRepository studentRepository;
 
     @InjectMocks
-    private StudentService studentService;
+    private ProductService productService;
 
     @Test
     public void givenStudent_whenAddNewStudent_returnStudent(){
@@ -33,7 +33,7 @@ public class StudentServiceTests {
 
         when(studentRepository.findStudentByEmail("tom123@abc.com")).thenReturn(Optional.empty());
 
-        studentService.addNewStudent(student);
+        productService.addNewStudent(student);
 
         verify(studentRepository,times(1)).save(student);
 
@@ -43,7 +43,7 @@ public class StudentServiceTests {
     public void givenId_whenDeleteStudent_deleteStudent(){
         when(studentRepository.existsById(1L)).thenReturn(true);
 
-        studentService.deleteStudent(1L);
+        productService.deleteStudent(1L);
 
         verify(studentRepository,times(1)).deleteById(1L);
 
@@ -59,7 +59,7 @@ public class StudentServiceTests {
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
 
-        studentService.updateStudent(1L,"Jack","jack444@ghj.com");
+        productService.updateStudent(1L,"Jack","jack444@ghj.com");
 
         Assertions.assertEquals("Jack",student.getName());
         Assertions.assertEquals("jack444@ghj.com",student.getEmail());

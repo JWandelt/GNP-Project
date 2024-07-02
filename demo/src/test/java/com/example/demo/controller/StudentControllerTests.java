@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Student;
-import com.example.demo.service.StudentService;
+import com.example.demo.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +30,7 @@ public class StudentControllerTests {
     MockMvc mockMvc;
 
     @MockBean
-    private StudentService studentService;
+    private ProductService productService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -48,7 +48,7 @@ public class StudentControllerTests {
                 .dob(LocalDate.of(2000, Month.MAY, 15))
                 .build();
 
-        when(studentService.getStudents()).thenReturn(List.of(student1,student2));
+        when(productService.getStudents()).thenReturn(List.of(student1,student2));
 
         mockMvc.perform(get("/api/v1/student")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -56,7 +56,7 @@ public class StudentControllerTests {
                 .andExpect(jsonPath("$[0].name").value("Tom"))
                 .andExpect(jsonPath("$[1].name").value("Adam"));
 
-        verify(studentService,times(1)).getStudents();
+        verify(productService,times(1)).getStudents();
     }
 
     @Test
@@ -72,7 +72,7 @@ public class StudentControllerTests {
                 .content(objectMapper.writeValueAsString(student)))
                 .andExpect(status().isOk());
 
-        verify(studentService,times(1)).addNewStudent(student);
+        verify(productService,times(1)).addNewStudent(student);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class StudentControllerTests {
         mockMvc.perform(delete("/api/v1/student/1"))
                 .andExpect(status().isOk());
 
-        verify(studentService,times(1)).deleteStudent(1L);
+        verify(productService,times(1)).deleteStudent(1L);
     }
 
     @Test
@@ -90,6 +90,6 @@ public class StudentControllerTests {
                         .param("email","leo265@abc.com"))
                 .andExpect(status().isOk());
 
-        verify(studentService,times(1)).updateStudent(1L,"Leo","leo265@abc.com");
+        verify(productService,times(1)).updateStudent(1L,"Leo","leo265@abc.com");
     }
 }
