@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Student;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.model.Product;
+import com.example.demo.repository.ProductRepository;
 import com.example.demo.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -15,17 +17,17 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = StudentController.class)
+@WebMvcTest(controllers = ProductController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
-public class StudentControllerTests {
+public class ProductControllerTests {
     @Autowired
     MockMvc mockMvc;
 
@@ -36,6 +38,13 @@ public class StudentControllerTests {
     ObjectMapper objectMapper;
 
     @Test
+    public void getProductByName_whenIsNotFound() throws Exception{
+        when(productService.getProductByName("smartphone")).thenThrow(new ResourceNotFoundException("Product not found"));
+        mockMvc.perform(get("/api/product/smartphone"))
+                .andExpect(status().isNotFound());
+    }
+
+   /* @Test
     public void whenGetStudents_thenReturnListOFStudents() throws Exception{
         Student student1 = Student.builder()
                 .name("Tom")
@@ -91,5 +100,5 @@ public class StudentControllerTests {
                 .andExpect(status().isOk());
 
         verify(productService,times(1)).updateStudent(1L,"Leo","leo265@abc.com");
-    }
+    }*/
 }

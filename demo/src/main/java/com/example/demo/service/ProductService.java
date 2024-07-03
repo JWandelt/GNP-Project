@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 
+import com.example.demo.exception.ResourceAlreadyExistException;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Product;
 import com.example.demo.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -33,7 +35,7 @@ public class ProductService {
         Optional<Product> productOptional = productRepository.findProductByName(name);
 
         if (productOptional.isEmpty()) {
-            throw new IllegalStateException("Name taken");
+            throw new ResourceNotFoundException("Product not found");
         }
 
         return productOptional.get();
@@ -43,7 +45,7 @@ public class ProductService {
         Optional<Product> productOptional = productRepository.findProductByName(product.getName());
 
         if (productOptional.isPresent()) {
-            throw new IllegalStateException("Name taken");
+            throw new ResourceAlreadyExistException("Product with this name already exists");
         }
 
         productRepository.save(product);
@@ -53,7 +55,7 @@ public class ProductService {
         Optional<Product> productOptional = productRepository.findProductByName(name);
 
         if (productOptional.isEmpty()) {
-            throw new IllegalStateException("Product does not exist");
+            throw new ResourceNotFoundException("Product not found");
         }
 
         Long id = productOptional.get().getId();
@@ -64,7 +66,7 @@ public class ProductService {
     @Transactional
     public void updateProduct(String name, Integer quantity, Integer price) {
         Product product = productRepository.findProductByName(name)
-                .orElseThrow(() -> new IllegalStateException("Product does not exist"));
+                .orElseThrow(() ->  new ResourceNotFoundException("Product not found"));
 
         if (quantity != null && !Objects.equals(product.getQuantity(), quantity)) {
             product.setQuantity(quantity);
