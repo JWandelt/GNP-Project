@@ -14,6 +14,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 public class Product {
+    public Product(String name, Integer quantity, Integer price, String vendor) {
+        this.name = name;
+        this.quantity = quantity;
+        this.price = price;
+        this.vendor = vendor;
+    }
+
+    public Product(Long id) {
+        this.id = id;
+    }
+
     @Id
     @SequenceGenerator(
             name = "product_sequence",

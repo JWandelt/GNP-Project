@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Student;
-import com.example.demo.repository.StudentRepository;
+import com.example.demo.model.Product;
+import com.example.demo.repository.ProductRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,8 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -18,51 +16,54 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTests {
     @Mock
-    private StudentRepository studentRepository;
+    private ProductRepository productRepository;
 
     @InjectMocks
     private ProductService productService;
 
     @Test
-    public void givenStudent_whenAddNewStudent_returnStudent(){
-        Student student = Student.builder()
-                .name("Tom")
-                .email("tom123@abc.com")
-                .dob(LocalDate.of(2000, Month.APRIL, 10))
+    public void givenProduct_whenAddNewProduct_returnProduct(){
+        Product product = Product.builder()
+                .name("Gel")
+                .quantity(100)
+                .price(10)
+                .vendor("P&G")
                 .build();
 
-        when(studentRepository.findStudentByEmail("tom123@abc.com")).thenReturn(Optional.empty());
+        when(productRepository.findProductByName("Gel")).thenReturn(Optional.empty());
 
-        productService.addNewStudent(student);
+        productService.addProduct(product);
 
-        verify(studentRepository,times(1)).save(student);
+        verify(productRepository,times(1)).save(product);
 
     }
 
     @Test
-    public void givenId_whenDeleteStudent_deleteStudent(){
-        when(studentRepository.existsById(1L)).thenReturn(true);
+    public void givenName_whenDeleteProduct_deleteProduct(){
+        when(productRepository.findProductByName("Gel")).thenReturn(Optional.of(new Product(1L)));
 
-        productService.deleteStudent(1L);
+        productService.deleteProduct("Gel");
 
-        verify(studentRepository,times(1)).deleteById(1L);
+        verify(productRepository, times(1)).deleteById(1L);
 
     }
 
     @Test
-    public void givenIdAndName_whenUpdateStudent_updateStudentData(){
-        Student student = Student.builder()
-                .name("Tom")
-                .email("tom123@abc.com")
-                .dob(LocalDate.of(2000, Month.APRIL, 10))
+    public void givenIdAndName_whenUpdateProduct_updateProductData(){
+        Product product = Product.builder()
+                .id(1L)
+                .name("Gel")
+                .quantity(100)
+                .price(10)
+                .vendor("P&G")
                 .build();
 
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        when(productRepository.findProductByName("Gel")).thenReturn(Optional.of(product));
 
-        productService.updateStudent(1L,"Jack","jack444@ghj.com");
+        productService.updateProduct("Gel",50,1);
 
-        Assertions.assertEquals("Jack",student.getName());
-        Assertions.assertEquals("jack444@ghj.com",student.getEmail());
+        Assertions.assertEquals(50, product.getQuantity());
+        Assertions.assertEquals(1, product.getPrice());
     }
 
 }
