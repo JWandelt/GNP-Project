@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.exception.ResourceAlreadyExistException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Product;
-import com.example.demo.repository.ProductRepository;
 import com.example.demo.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -15,9 +15,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Optional;
+import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -38,67 +37,182 @@ public class ProductControllerTests {
     ObjectMapper objectMapper;
 
     @Test
-    public void getProductByName_whenIsNotFound() throws Exception{
+    public void whenGetProductByName_thenReturnProduct() throws Exception{
+        Product product = Product.builder()
+                .name("smartphone")
+                .price(1000)
+                .vendor("XYZ")
+                .quantity(400)
+                .build();
+
+        when(productService.getProductByName("smartphone")).thenReturn(product);
+
+        mockMvc.perform(get("/api/product/smartphone"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("smartphone"))
+                .andExpect(jsonPath("$.price").value(1000));
+
+        verify(productService,times(1)).getProductByName("smartphone");
+    }
+
+    @Test
+    public void whenGetProductByName_thenNotFoundStatusCode() throws Exception{
         when(productService.getProductByName("smartphone")).thenThrow(new ResourceNotFoundException("Product not found"));
+
         mockMvc.perform(get("/api/product/smartphone"))
                 .andExpect(status().isNotFound());
+
+        verify(productService,times(1)).getProductByName("smartphone");
     }
 
-   /* @Test
-    public void whenGetStudents_thenReturnListOFStudents() throws Exception{
-        Student student1 = Student.builder()
-                .name("Tom")
-                .email("tom123@abc.com")
-                .dob(LocalDate.of(2000, Month.APRIL, 10))
+    @Test
+    public void whenGetProductsByVendor_thenReturnProductList() throws Exception{
+        Product product1 = Product.builder()
+                .name("smartphone")
+                .price(1000)
+                .vendor("ABC")
+                .quantity(400)
                 .build();
-        Student student2 = Student.builder()
-                .name("Adam")
-                .email("adam@abc.com")
-                .dob(LocalDate.of(2000, Month.MAY, 15))
+        Product product2 = Product.builder()
+                .name("hairbrush")
+                .price(10)
+                .vendor("ABC")
+                .quantity(2000)
                 .build();
 
-        when(productService.getStudents()).thenReturn(List.of(student1,student2));
+        when(productService.getProductsByVendor("ABC")).thenReturn(List.of(product1,product2));
 
-        mockMvc.perform(get("/api/v1/student")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/product/products/ABC"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Tom"))
-                .andExpect(jsonPath("$[1].name").value("Adam"));
+                .andExpect(jsonPath("$[0].name").value("smartphone"))
+                .andExpect(jsonPath("$[1].name").value("hairbrush"));
 
-        verify(productService,times(1)).getStudents();
+        verify(productService,times(1)).getProductsByVendor("ABC");
     }
 
     @Test
-    public void whenRegisterNewStudent_thenAddNewStudent() throws Exception{
-        Student student = Student.builder()
-                .name("Tom")
-                .email("tom123@abc.com")
-                .dob(LocalDate.of(2000, Month.APRIL, 10))
+    public void whenGetProductsByVendor_thenReturnEmptyProductList() throws Exception{
+        when(productService.getProductsByVendor("ABC")).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/product/products/ABC"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+
+        verify(productService,times(1)).getProductsByVendor("ABC");
+    }
+
+    @Test
+    public void whenGetProducts_thenReturnProductList() throws Exception{
+        Product product1 = Product.builder()
+                .name("smartphone")
+                .price(1000)
+                .vendor("XYZ")
+                .quantity(400)
+                .build();
+        Product product2 = Product.builder()
+                .name("hairbrush")
+                .price(10)
+                .vendor("ABC")
+                .quantity(2000)
                 .build();
 
-        mockMvc.perform(post("/api/v1/student")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(student)))
-                .andExpect(status().isOk());
+        when(productService.getProducts()).thenReturn(List.of(product1,product2));
 
-        verify(productService,times(1)).addNewStudent(student);
+        mockMvc.perform(get("/api/product/products"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("smartphone"))
+                .andExpect(jsonPath("$[1].name").value("hairbrush"));
+
+        verify(productService,times(1)).getProducts();
     }
 
     @Test
-    public void whenDeleteStudent_thenRemoveStudent() throws Exception{
-        mockMvc.perform(delete("/api/v1/student/1"))
-                .andExpect(status().isOk());
+    public void whenGetProducts_thenReturnEmptyProductList() throws Exception{
+        when(productService.getProducts()).thenReturn(Collections.emptyList());
 
-        verify(productService,times(1)).deleteStudent(1L);
+        mockMvc.perform(get("/api/product/products"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+
+        verify(productService,times(1)).getProducts();
     }
 
     @Test
-    public void whenUpdateStudent_thenChangeStudentData() throws Exception{
-        mockMvc.perform(put("/api/v1/student/1")
-                        .param("name","Leo")
-                        .param("email","leo265@abc.com"))
+    public void whenAddProduct_thenStatusOK() throws Exception{
+        Product product = Product.builder()
+                .name("hairbrush")
+                .price(10)
+                .vendor("ABC")
+                .quantity(2000)
+                .build();
+
+        mockMvc.perform(post("/api/product")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(product)))
                 .andExpect(status().isOk());
 
-        verify(productService,times(1)).updateStudent(1L,"Leo","leo265@abc.com");
-    }*/
+        verify(productService,times(1)).addProduct(product);
+    }
+
+    @Test
+    public void whenAddProduct_thenStatusConflict() throws Exception{
+        Product product = Product.builder()
+                .name("hairbrush")
+                .price(10)
+                .vendor("ABC")
+                .quantity(2000)
+                .build();
+
+        doThrow(new ResourceAlreadyExistException("Product with this name already exists"))
+                .when(productService).addProduct(product);
+
+        mockMvc.perform(post("/api/product")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(product)))
+                .andExpect(status().isConflict());
+
+        verify(productService,times(1)).addProduct(product);
+    }
+
+    @Test
+    public void whenDeleteProduct_thenStatusOK() throws Exception{
+        mockMvc.perform(delete("/api/product/notebook"))
+                .andExpect(status().isOk());
+
+        verify(productService,times(1)).deleteProduct("notebook");
+    }
+
+    @Test
+    public void whenDeleteProduct_thenStatusNotFound() throws Exception{
+        doThrow(new ResourceNotFoundException("Product not found"))
+                .when(productService).deleteProduct("notebook");
+
+        mockMvc.perform(delete("/api/product/notebook"))
+                .andExpect(status().isNotFound());
+
+        verify(productService,times(1)).deleteProduct("notebook");
+    }
+
+    @Test
+    public void whenUpdateProduct_thenStatusOK() throws Exception{
+        mockMvc.perform(put("/api/product/notebook")
+                        .param("quantity","560")
+                        .param("price","7"))
+                .andExpect(status().isOk());
+
+        verify(productService,times(1)).updateProduct("notebook",560,7);
+    }
+
+    @Test
+    public void whenUpdateProduct_thenStatusNotFound() throws Exception{
+        doThrow(new ResourceNotFoundException("Product not found"))
+                .when(productService).updateProduct("notebook",560,7);
+
+        mockMvc.perform(put("/api/product/notebook")
+                        .param("quantity","560")
+                        .param("price","7"))
+                .andExpect(status().isNotFound());
+
+        verify(productService,times(1)).updateProduct("notebook",560,7);
+    }
 }
