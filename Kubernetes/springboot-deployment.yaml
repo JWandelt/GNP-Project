@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: springboot-app
-        image: 1czarniecki/my-spring-boot-app:latest
+        image: czareri/gnp_project:0.6
         ports:
         - containerPort: 8080
         env:
@@ -36,10 +36,9 @@ kind: Service
 metadata:
   name: springboot-service
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
   - port: 80
     targetPort: 8080
-    nodePort: 30080
   selector:
     app: springboot-app

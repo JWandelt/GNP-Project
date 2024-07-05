@@ -29,12 +29,15 @@ spec:
               key: password
         - name: POSTGRES_DB
           value: student
+        - name: PGDATA
+          value: /var/lib/postgresql/backup
         ports:
         - containerPort: 5432
           name: postgres
         volumeMounts:
-        - mountPath: /var/lib/postgresql/data
+        - mountPath: /var/lib/postgresql
           name: postgres-storage
+          subPath: backup
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:
