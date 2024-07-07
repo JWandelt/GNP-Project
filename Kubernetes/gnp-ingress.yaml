@@ -13,7 +13,7 @@ spec:
     - http:
         paths:
           - pathType: Prefix
-            path: /api(/|$)(.*)
+            path: /api/product(/|$)(.*)
             backend:
               service:
                 name: springboot-service
