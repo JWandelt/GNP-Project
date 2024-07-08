@@ -14,12 +14,12 @@ spec:
     spec:
       containers:
       - name: springboot-app
-        image: czareri/gnp_project:0.6
+        image: happiness07/gnp-project:0.0.6
         ports:
         - containerPort: 8080
         env:
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://postgres:5432/student
+          value: jdbc:postgresql://postgres:5432/product
         - name: SPRING_DATASOURCE_USERNAME
           valueFrom:
             secretKeyRef:

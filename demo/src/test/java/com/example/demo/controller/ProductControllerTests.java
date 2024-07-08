@@ -47,7 +47,7 @@ public class ProductControllerTests {
 
         when(productService.getProductByName("smartphone")).thenReturn(product);
 
-        mockMvc.perform(get("/api/product/smartphone"))
+        mockMvc.perform(get("/api/smartphone"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("smartphone"))
                 .andExpect(jsonPath("$.price").value(1000));
@@ -59,7 +59,7 @@ public class ProductControllerTests {
     public void whenGetProductByName_thenNotFoundStatusCode() throws Exception{
         when(productService.getProductByName("smartphone")).thenThrow(new ResourceNotFoundException("Product not found"));
 
-        mockMvc.perform(get("/api/product/smartphone"))
+        mockMvc.perform(get("/api/smartphone"))
                 .andExpect(status().isNotFound());
 
         verify(productService,times(1)).getProductByName("smartphone");
@@ -82,7 +82,7 @@ public class ProductControllerTests {
 
         when(productService.getProductsByVendor("ABC")).thenReturn(List.of(product1,product2));
 
-        mockMvc.perform(get("/api/product/products/ABC"))
+        mockMvc.perform(get("/api/products/ABC"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("smartphone"))
                 .andExpect(jsonPath("$[1].name").value("hairbrush"));
@@ -94,7 +94,7 @@ public class ProductControllerTests {
     public void whenGetProductsByVendor_thenReturnEmptyProductList() throws Exception{
         when(productService.getProductsByVendor("ABC")).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/api/product/products/ABC"))
+        mockMvc.perform(get("/api/products/ABC"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
 
@@ -118,7 +118,7 @@ public class ProductControllerTests {
 
         when(productService.getProducts()).thenReturn(List.of(product1,product2));
 
-        mockMvc.perform(get("/api/product/products"))
+        mockMvc.perform(get("/api/products"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("smartphone"))
                 .andExpect(jsonPath("$[1].name").value("hairbrush"));
@@ -130,7 +130,7 @@ public class ProductControllerTests {
     public void whenGetProducts_thenReturnEmptyProductList() throws Exception{
         when(productService.getProducts()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/api/product/products"))
+        mockMvc.perform(get("/api/products"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
 
@@ -146,7 +146,7 @@ public class ProductControllerTests {
                 .quantity(2000)
                 .build();
 
-        mockMvc.perform(post("/api/product")
+        mockMvc.perform(post("/api")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(product)))
                 .andExpect(status().isOk());
@@ -166,7 +166,7 @@ public class ProductControllerTests {
         doThrow(new ResourceAlreadyExistException("Product with this name already exists"))
                 .when(productService).addProduct(product);
 
-        mockMvc.perform(post("/api/product")
+        mockMvc.perform(post("/api")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(product)))
                 .andExpect(status().isConflict());
@@ -176,7 +176,7 @@ public class ProductControllerTests {
 
     @Test
     public void whenDeleteProduct_thenStatusOK() throws Exception{
-        mockMvc.perform(delete("/api/product/notebook"))
+        mockMvc.perform(delete("/api/notebook"))
                 .andExpect(status().isOk());
 
         verify(productService,times(1)).deleteProduct("notebook");
@@ -187,7 +187,7 @@ public class ProductControllerTests {
         doThrow(new ResourceNotFoundException("Product not found"))
                 .when(productService).deleteProduct("notebook");
 
-        mockMvc.perform(delete("/api/product/notebook"))
+        mockMvc.perform(delete("/api/notebook"))
                 .andExpect(status().isNotFound());
 
         verify(productService,times(1)).deleteProduct("notebook");
@@ -195,7 +195,7 @@ public class ProductControllerTests {
 
     @Test
     public void whenUpdateProduct_thenStatusOK() throws Exception{
-        mockMvc.perform(put("/api/product/notebook")
+        mockMvc.perform(put("/api/notebook")
                         .param("quantity","560")
                         .param("price","7"))
                 .andExpect(status().isOk());
@@ -208,7 +208,7 @@ public class ProductControllerTests {
         doThrow(new ResourceNotFoundException("Product not found"))
                 .when(productService).updateProduct("notebook",560,7);
 
-        mockMvc.perform(put("/api/product/notebook")
+        mockMvc.perform(put("/api/notebook")
                         .param("quantity","560")
                         .param("price","7"))
                 .andExpect(status().isNotFound());
