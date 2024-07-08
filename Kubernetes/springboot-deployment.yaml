@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: springboot-app
-        image: happiness07/gnp-project:0.0.5
+        image: happiness07/gnp-project:0.0.6
         ports:
         - containerPort: 8080
         env:
